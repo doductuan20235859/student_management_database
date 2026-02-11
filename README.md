@@ -1,1 +1,128 @@
-🎓 Hệ Thống Quản Lý Sinh Viên (University Student Management System)Mô tả: Dự án xây dựng cơ sở dữ liệu trên nền tảng PostgreSQL nhằm giải quyết các bài toán phức tạp trong môi trường đại học như: quản lý thông tin, tự động hóa đăng ký học phần, kiểm soát ràng buộc toàn vẹn và báo cáo thống kê.📋 Mục lụcGiới thiệuCơ sở dữ liệu & Cấu trúcTính năng & Quy tắc nghiệp vụKỹ thuật áp dụng (Technical Highlights)Hướng phát triển📖 Giới thiệuViệc quản lý thủ công hoặc sử dụng Excel thường dẫn đến sai sót dữ liệu (trùng mã sinh viên), khó kiểm tra ràng buộc (như điều kiện tiên quyết) và tốn thời gian thống kê.Hệ thống này được thiết kế để:Tự động hóa: Quy trình đăng ký học phần, nhập điểm và kiểm tra điều kiện.Toàn vẹn dữ liệu: Sử dụng chặt chẽ các khóa ngoại, Trigger và ràng buộc (Constraints).Hỗ trợ đa vai trò: Phục vụ nhu cầu của Quản lý, Giảng viên và Sinh viên.🗂 Cơ sở dữ liệu & Cấu trúcHệ thống bao gồm 11 bảng thực thể chính được thiết kế để chuẩn hóa dữ liệu:1. Nhóm Quản lý thông tin cơ bảnSinhVien: Lưu trữ hồ sơ sinh viên.GiangVien: Lưu trữ hồ sơ giảng viên.Khoa: Quản lý danh sách các khoa.Lop: Lớp hành chính (ví dụ: K65CNTT).PhongHoc: Thông tin cơ sở vật chất.2. Nhóm Đào tạo & Học phầnHocPhan: Danh mục môn học (ví dụ: Lập trình C).LopHocPhan: Các lớp tín chỉ mở theo kỳ (gắn với lịch học, phòng học).DieuKienTienQuyet: Quy định môn học bắt buộc phải hoàn thành trước khi đăng ký môn sau.PhanCongGiangDay: Phân công giảng viên dạy lớp học phần.3. Nhóm Kết quả & Đăng kýDangKyNguyenVongHocPhan: Lưu nguyện vọng đăng ký của sinh viên.KetQuaHocTap: Lưu điểm số và trạng thái (Hoàn thành/Trượt).⚙️ Tính năng & Quy tắc nghiệp vụHệ thống xử lý các logic nghiệp vụ phức tạp sau:1. Đăng ký học phần (Registration Logic)Kiểm tra điều kiện tiên quyết: Sinh viên chỉ được đăng ký học phần nếu đã hoàn thành các môn tiên quyết với điểm kết thúc $\ge 4.0$.Giới hạn tín chỉ: Tổng số tín chỉ không được vượt quá 25 tín chỉ/học kỳ.Kiểm tra lịch & Sức chứa: Hệ thống tự động chặn nếu trùng lịch học hoặc phòng học quá tải.2. Quản lý giảng dạy (Teaching Management)Ràng buộc khoa: Giảng viên và Học phần được phân công phải thuộc cùng một Khoa. Tránh việc giảng viên khoa này dạy môn của khoa khác.3. Quản lý điểm (Grading)Tự động tính toán: Khi giảng viên nhập điểm quá trình và cuối kỳ, hệ thống tự tính điểm tổng kết và cập nhật trạng thái "Hoàn thành" hoặc "Trượt".💻 Kỹ thuật áp dụng (Technical Highlights)Dự án sử dụng các kỹ thuật nâng cao của PostgreSQL để đảm bảo hiệu suất và tính đúng đắn của dữ liệu:⚡ Triggers (Tự động hóa)trg_check_prerequisites:Kích hoạt: Trước khi INSERT vào bảng DangKyNguyenVongHocPhan.Logic: Kiểm tra bảng DieuKienTienQuyet. Nếu sinh viên chưa qua môn tiên quyết (điểm < 4.0), hệ thống sẽ RAISE EXCEPTION và liệt kê các môn còn nợ.trg_check_instructor_department:Kích hoạt: Khi phân công giảng dạy (PhanCongGiangDay).Logic: So sánh ma_khoa của Giảng viên và ma_khoa của Học phần. Nếu khác nhau -> Báo lỗi.Các Trigger khác:Kiểm tra trùng lịch học và sức chứa phòng.trg_delete_ket_qua_khi_xoa_sinh_vien: Xóa dữ liệu rác khi xóa sinh viên.📊 Views & Materialized Views (Báo cáo)vw_ket_qua_hoc_tap_sinh_vien: Tổng hợp bảng điểm và trạng thái của từng sinh viên.mv_thong_ke_sv_dang_ky_hoc_phan: Thống kê số lượng đăng ký theo học phần (Materialized View giúp làm mới dữ liệu nhanh).🛠 Stored Procedures & OptimizationProcedures: sp_dang_ky_hoc_phan, sp_nhap_diem giúp đóng gói logic phức tạp.Indexing: Tạo Index trên các cột ma_sinh_vien, ma_hoc_phan, email để tăng tốc độ truy vấn.🚀 Hướng phát triển (Future Roadmap)[ ] Tích hợp giao diện Web/Mobile cho sinh viên đăng ký trực tuyến.[ ] Hệ thống thông báo tự động (Email/SMS) khi có điểm hoặc đổi lịch.[ ] Mở rộng module quản lý học phí và ký túc xá.
+# 🎓 Hệ Thống Quản Lý Sinh Viên  
+**University Student Management System**
+
+> Dự án xây dựng **cơ sở dữ liệu PostgreSQL** nhằm giải quyết các bài toán phức tạp trong môi trường đại học:  
+> quản lý thông tin, tự động hóa đăng ký học phần, kiểm soát ràng buộc toàn vẹn và báo cáo thống kê.
+
+---
+
+## 📋 Mục lục
+- [📖 Giới thiệu](#-giới-thiệu)
+- [🗂 Cơ sở dữ liệu & Cấu trúc](#-cơ-sở-dữ-liệu--cấu-trúc)
+- [⚙️ Tính năng & Quy tắc nghiệp vụ](#️-tính-năng--quy-tắc-nghiệp-vụ)
+- [💻 Kỹ thuật áp dụng](#-kỹ-thuật-áp-dụng)
+- [🚀 Hướng phát triển](#-hướng-phát-triển)
+
+---
+
+## 📖 Giới thiệu
+Việc quản lý thủ công hoặc sử dụng Excel thường dẫn đến:
+- ❌ Sai sót dữ liệu (trùng mã sinh viên)
+- ❌ Khó kiểm tra ràng buộc (điều kiện tiên quyết)
+- ❌ Tốn thời gian tổng hợp và thống kê
+
+### 🎯 Mục tiêu hệ thống
+- **Tự động hóa**: Đăng ký học phần, nhập điểm, kiểm tra điều kiện.
+- **Toàn vẹn dữ liệu**: Sử dụng khóa ngoại, Trigger và Constraints.
+- **Hỗ trợ đa vai trò**: Quản lý – Giảng viên – Sinh viên.
+
+---
+
+## 🗂 Cơ sở dữ liệu & Cấu trúc
+Hệ thống gồm **11 bảng thực thể chính**, thiết kế theo chuẩn hóa dữ liệu.
+
+### 1️⃣ Nhóm quản lý thông tin cơ bản
+- **SinhVien** – Hồ sơ sinh viên  
+- **GiangVien** – Hồ sơ giảng viên  
+- **Khoa** – Danh sách khoa  
+- **Lop** – Lớp hành chính (VD: K65CNTT)  
+- **PhongHoc** – Thông tin cơ sở vật chất  
+
+### 2️⃣ Nhóm đào tạo & học phần
+- **HocPhan** – Danh mục môn học  
+- **LopHocPhan** – Lớp tín chỉ theo học kỳ  
+- **DieuKienTienQuyet** – Điều kiện môn học tiên quyết  
+- **PhanCongGiangDay** – Phân công giảng viên  
+
+### 3️⃣ Nhóm đăng ký & kết quả
+- **DangKyNguyenVongHocPhan** – Nguyện vọng đăng ký  
+- **KetQuaHocTap** – Điểm số & trạng thái học tập  
+
+---
+
+## ⚙️ Tính năng & Quy tắc nghiệp vụ
+
+### 🔐 1. Đăng ký học phần
+- ✅ **Điều kiện tiên quyết**:  
+  Sinh viên chỉ được đăng ký nếu đã hoàn thành môn tiên quyết với  
+  **điểm tổng kết ≥ 4.0**
+- 📊 **Giới hạn tín chỉ**:  
+  Tối đa **25 tín chỉ / học kỳ**
+- 📅 **Kiểm tra lịch & sức chứa**:  
+  Tự động chặn trùng lịch hoặc phòng học quá tải
+
+### 👨‍🏫 2. Quản lý giảng dạy
+- Ràng buộc khoa:  
+  > Giảng viên và Học phần **phải thuộc cùng một Khoa**  
+  → Tránh phân công sai chuyên môn
+
+### 📝 3. Quản lý điểm
+- Tự động tính điểm tổng kết
+- Cập nhật trạng thái:
+  - **Hoàn thành**
+  - **Trượt**
+
+---
+
+## 💻 Kỹ thuật áp dụng
+Dự án tận dụng các **tính năng nâng cao của PostgreSQL**.
+
+### ⚡ Triggers (Tự động hóa)
+- **trg_check_prerequisites**  
+  - Kích hoạt: `BEFORE INSERT` vào `DangKyNguyenVongHocPhan`
+  - Chức năng:  
+    Kiểm tra `DieuKienTienQuyet`  
+    → Nếu chưa đạt (`< 4.0`) → `RAISE EXCEPTION`
+
+- **trg_check_instructor_department**  
+  - Kiểm tra khoa của Giảng viên và Học phần  
+  - Sai → báo lỗi
+
+- **Các trigger khác**
+  - Kiểm tra trùng lịch học
+  - Kiểm tra sức chứa phòng
+  - `trg_delete_ket_qua_khi_xoa_sinh_vien`:  
+    Dọn dữ liệu rác khi xóa sinh viên
+
+---
+
+### 📊 Views & Materialized Views
+- **vw_ket_qua_hoc_tap_sinh_vien**  
+  → Tổng hợp bảng điểm và trạng thái học tập
+
+- **mv_thong_ke_sv_dang_ky_hoc_phan**  
+  → Thống kê số lượng sinh viên đăng ký theo học phần  
+  *(Materialized View giúp tăng hiệu suất)*
+
+---
+
+### 🛠 Stored Procedures & Optimization
+- **Stored Procedures**
+  - `sp_dang_ky_hoc_phan`
+  - `sp_nhap_diem`
+
+- **Indexing**
+  - `ma_sinh_vien`
+  - `ma_hoc_phan`
+  - `email`
+
+---
+
+## 🚀 Hướng phát triển
+- [ ] Tích hợp giao diện **Web/Mobile**
+- [ ] Thông báo tự động **Email / SMS**
+- [ ] Mở rộng module **Học phí & Ký túc xá**
+
+---
+
+📌 *Dự án phục vụ mục đích học tập và nghiên cứu cơ sở dữ liệu nâng cao.*
